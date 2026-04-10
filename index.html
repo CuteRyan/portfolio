@@ -1,802 +1,559 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>류기훈 AI Agent Builder & System Architect</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="류기훈의 AI 시스템 포트폴리오. 알고리즘 트레이딩, LLM 에이전트 시뮬레이션, 실사용자 중심 AI 유틸리티를 설계·구축·운영한 프로젝트.">
+<meta name="author" content="류기훈">
+<meta name="theme-color" content="#0d0d0d">
+<meta property="og:type" content="website">
+<meta property="og:title" content="류기훈 — AI Systems Builder">
+<meta property="og:description" content="모델보다 구조에 투자하는 사람. 알고리즘 트레이딩, 에이전트 시스템, 실사용자 중심 AI 유틸리티 포트폴리오.">
+<meta property="og:site_name" content="류기훈 Portfolio">
+<title>류기훈 — AI Systems Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
+:root{--toolbar-h:44px;--bg:#0d0d0d;--surface:#161616;--border:#2a2a2a;--text:#e0e0e0;--text2:#999;--text3:#666;--accent:#e8734a;--accent-dim:rgba(232,115,74,.08);--accent-border:rgba(232,115,74,.2);--serif:'DM Serif Display',serif;--mono:'IBM Plex Mono',monospace;--sans:'Noto Sans KR',sans-serif}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--bg4:#16213e;
-  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
-  --accent1:#7c3aed;--accent2:#3b82f6;--accent3:#06b6d4;
-  --grad:linear-gradient(135deg,#7c3aed,#3b82f6,#06b6d4);
-  --grad2:linear-gradient(135deg,#7c3aed,#3b82f6);
-  --card:#ffffff08;--border:#ffffff12;
-  --radius:16px;
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--mono);color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--bg)}
+
+.deck{position:fixed;inset:0;bottom:var(--toolbar-h)}
+.slide{position:absolute;inset:0;display:none;opacity:0;transition:opacity .25s ease}
+.slide.active{display:block;opacity:1}
+@media(prefers-reduced-motion:reduce){.slide{transition:none}}
+
+.slide-frame{width:100%;height:100%;overflow:hidden;background:var(--surface)}
+
+.slide-header{display:flex;align-items:center;justify-content:space-between;gap:24px;height:64px;padding:0 40px;background:var(--surface);border-bottom:1px solid var(--border);color:var(--text)}
+.slide-header .meta{font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.slide-header h1{font-family:var(--sans);font-size:28px;font-weight:700;color:var(--text)}
+
+.slide-body{height:calc(100% - 64px);padding:28px 44px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;font-size:16px;line-height:1.65;font-family:var(--mono)}
+.slide-body::-webkit-scrollbar{width:4px}
+.slide-body::-webkit-scrollbar-track{background:transparent}
+.slide-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+.section-title{padding-left:14px;border-left:3px solid var(--accent);font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.3;color:var(--text);margin-bottom:0;margin-top:4px}
+.bullet-list{padding-left:24px;display:flex;flex-direction:column;gap:5px;font-size:16px;line-height:1.65;list-style-type:none;font-family:var(--sans);color:var(--text)}
+.bullet-list li::before{content:'—';display:inline-block;width:24px;margin-left:-24px;color:var(--accent);font-weight:600}
+.desc{font-family:var(--sans);font-size:16px;line-height:1.7;color:var(--text2);word-break:keep-all}
+
+.result-row{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
+.result-pill{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:5px;background:var(--accent-dim);border:1px solid var(--accent-border);font-family:var(--mono);font-size:14px;color:var(--text2);white-space:nowrap}
+.result-pill b{font-size:19px;color:var(--accent);font-weight:600}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0}
+.tag{padding:4px 12px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);font-family:var(--mono);font-size:13px;color:var(--text2);white-space:nowrap}
+
+/* Title Slide */
+.title-slide .slide-frame{background:var(--bg);display:flex;align-items:center;justify-content:center}
+.title-slide .title-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;padding:80px}
+.title-slide .name{font-family:var(--serif);font-size:72px;color:var(--text);letter-spacing:-.02em}
+.title-slide .tagline{font-family:var(--mono);font-size:20px;color:var(--text2);font-weight:300;letter-spacing:.05em}
+.title-slide .divider{width:80px;height:2px;background:var(--accent);border-radius:1px}
+.title-slide .subtitle{font-family:var(--sans);font-size:16px;color:var(--text3);line-height:1.8}
+
+/* Divider Slide */
+.divider-slide .slide-frame{background:var(--bg);display:flex;align-items:center;justify-content:center}
+.divider-slide .divider-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px}
+.divider-slide .divider-num{font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:var(--accent)}
+.divider-slide .divider-title{font-family:var(--serif);font-size:56px;color:var(--text);letter-spacing:-.02em}
+.divider-slide .divider-desc{font-family:var(--sans);font-size:17px;color:var(--text2);max-width:700px;line-height:1.6}
+
+/* Timeline Slide */
+.timeline{display:flex;flex-direction:column;gap:0;padding-left:24px;border-left:2px solid var(--border)}
+.timeline-item{position:relative;padding:18px 0 18px 32px}
+.timeline-item::before{content:'';position:absolute;left:-7px;top:24px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--accent)}
+.timeline-item .period{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.05em;margin-bottom:4px}
+.timeline-item .role{font-family:var(--sans);font-size:18px;font-weight:600;color:var(--text);margin-bottom:2px}
+.timeline-item .org{font-family:var(--sans);font-size:15px;color:var(--text2)}
+
+/* Contact Slide */
+.contact-slide .slide-frame{background:var(--bg);display:flex;align-items:center;justify-content:center}
+.contact-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:32px}
+.contact-inner h2{font-family:var(--serif);font-size:44px;color:var(--text)}
+.contact-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+.contact-list li{font-family:var(--mono);font-size:17px;color:var(--text2)}
+.contact-list li span{color:var(--accent);margin-right:12px;font-weight:500}
+.contact-list a{color:var(--text2);text-decoration:none}
+.contact-list a:hover{color:var(--accent)}
+
+/* Toolbar */
+.toolbar{position:fixed;left:0;right:0;bottom:0;height:var(--toolbar-h);display:flex;align-items:center;justify-content:center;gap:8px;z-index:100;pointer-events:none;background:var(--bg);border-top:1px solid var(--border);opacity:1}
+.toolbar-inner{display:flex;align-items:center;gap:6px;padding:4px 14px;pointer-events:auto}
+.toolbar-inner button{appearance:none;border:0;border-radius:999px;padding:4px 12px;background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;transition:background .15s}
+.toolbar-inner button:hover{background:#d4623a}
+.toolbar-inner .chip{padding:0 10px;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text2);white-space:nowrap}
+.toolbar-inner .hint{font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap}
+
+@media(prefers-reduced-motion:reduce){.toolbar-inner button{transition:none}}
+@media print{
+  html,body{overflow:visible!important;background:white!important;color:#111!important;width:auto!important;height:auto!important}
+  .toolbar{display:none!important}
+  .deck{position:static!important}
+  .slide{position:relative!important;left:auto!important;top:auto!important;transform:none!important;display:block!important;opacity:1!important;width:100%!important;height:auto!important;margin:0 auto;page-break-after:always;page-break-inside:avoid}
+  .slide-frame{border-radius:0!important;box-shadow:none!important;border:1px solid #ddd!important;background:white!important}
+  .slide-body{overflow:visible!important;height:auto!important}
 }
-html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
-a{color:var(--accent2);text-decoration:none;transition:color .2s}
-a:hover{color:var(--accent3)}
+@page{size:16in 9in landscape;margin:0}
 
-/* Scrollbar */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--accent1);border-radius:3px}
+/* 2x2 Grid Slide */
+.grid-slide .slide-body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;padding:16px 24px}
+.grid-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.grid-card h3{font-family:var(--sans);font-size:18px;font-weight:700;color:var(--text);margin-bottom:2px}
+.grid-card .gc-desc{font-family:var(--sans);font-size:13px;line-height:1.6;color:var(--text2)}
+.grid-card .gc-section{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-top:4px}
+.grid-card .gc-list{padding-left:16px;display:flex;flex-direction:column;gap:2px;font-size:12px;line-height:1.5;list-style:none;font-family:var(--sans);color:var(--text)}
+.grid-card .gc-list li::before{content:'—';display:inline-block;width:18px;margin-left:-18px;color:var(--accent)}
+.grid-card .gc-results{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.grid-card .gc-pill{padding:3px 8px;border-radius:4px;background:var(--accent-dim);border:1px solid var(--accent-border);font-family:var(--mono);font-size:11px;color:var(--text2)}
+.grid-card .gc-pill b{color:var(--accent);font-weight:600}
+.grid-card .gc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto}
+.grid-card .gc-tag{padding:2px 8px;border-radius:3px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text3)}
 
-/* Nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(20px);background:rgba(10,10,15,.8);border-bottom:1px solid var(--border);padding:0 2rem;transition:transform .3s}
-nav .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
-nav .logo{font-weight:800;font-size:1.1rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-nav .links{display:flex;gap:1.5rem;list-style:none}
-nav .links a{color:var(--text2);font-size:.875rem;font-weight:500;transition:color .2s}
-nav .links a:hover{color:var(--text)}
-.hamburger{display:none;background:none;border:none;color:var(--text);font-size:1.25rem;cursor:pointer}
+/* 3-card grid (for groups with 3 projects) */
+.grid-slide-3 .slide-body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;padding:16px 24px}
+.grid-slide-3 .grid-card:last-child{grid-column:1/3}
 
-/* Hero */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.15),transparent 70%);top:-100px;right:-100px;pointer-events:none}
-.hero::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.1),transparent 70%);bottom:-100px;left:-100px;pointer-events:none}
-.hero-content{position:relative;z-index:1;max-width:800px}
-.hero .badge{display:inline-block;padding:.4rem 1rem;border-radius:999px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:var(--accent1);font-size:.8rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:1.5rem}
-.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.1;margin-bottom:1rem}
-.hero h1 .grad{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .subtitle{font-size:clamp(1rem,2vw,1.25rem);color:var(--text2);max-width:600px;margin:0 auto 2rem;line-height:1.7}
-.hero .stats{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-top:2rem}
-.hero .stat{text-align:center}
-.hero .stat .num{font-size:2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .stat .label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:.25rem}
-.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);animation:bounce 2s infinite;color:var(--text3);font-size:1.5rem}
-@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
-
-/* Sections */
-section{padding:5rem 2rem}
-.container{max-width:1200px;margin:0 auto}
-.section-header{text-align:center;margin-bottom:3.5rem}
-.section-header h2{font-size:2rem;font-weight:800;margin-bottom:.75rem}
-.section-header h2 .grad{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.section-header p{color:var(--text2);max-width:500px;margin:0 auto;font-size:.95rem}
-.divider{width:60px;height:4px;background:var(--grad);border-radius:2px;margin:1rem auto 0}
-
-/* Skills */
-.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
-.skill-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem;transition:transform .3s,border-color .3s}
-.skill-card:hover{transform:translateY(-4px);border-color:rgba(124,58,237,.3)}
-.skill-card .icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:1rem}
-.skill-card h3{font-size:1rem;font-weight:700;margin-bottom:.75rem}
-.skill-tags{display:flex;flex-wrap:wrap;gap:.4rem}
-.skill-tag{padding:.25rem .6rem;border-radius:6px;font-size:.7rem;font-weight:500;background:rgba(124,58,237,.1);color:var(--accent1);border:1px solid rgba(124,58,237,.2)}
-.skill-tag.blue{background:rgba(59,130,246,.1);color:var(--accent2);border-color:rgba(59,130,246,.2)}
-.skill-tag.cyan{background:rgba(6,182,212,.1);color:var(--accent3);border-color:rgba(6,182,212,.2)}
-.skill-tag.green{background:rgba(34,197,94,.1);color:#22c55e;border-color:rgba(34,197,94,.2)}
-
-/* Projects — Full Section Style */
-.project-section{padding:4rem 0;border-bottom:1px solid var(--border)}
-.project-section:last-child{border-bottom:none}
-.project-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
-.project-header .project-num{font-size:.75rem;font-weight:700;color:var(--accent1);text-transform:uppercase;letter-spacing:.1em;padding:.3rem .8rem;border:1px solid rgba(124,58,237,.3);border-radius:999px;white-space:nowrap}
-.project-header h3{font-size:1.6rem;font-weight:800}
-.project-header .project-period{font-size:.8rem;color:var(--text3);margin-left:auto;white-space:nowrap}
-.project-subtitle{font-size:1rem;color:var(--text2);line-height:1.8;margin-bottom:1.5rem;max-width:800px}
-.project-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem}
-.project-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:1.5rem}
-.project-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
-.info-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
-.info-box h4{font-size:.85rem;font-weight:700;margin-bottom:.75rem;color:var(--accent3)}
-.info-box p,.info-box li{font-size:.8rem;color:var(--text2);line-height:1.7}
-.info-box ul{list-style:none;padding:0}
-.info-box ul li{padding:.25rem 0;padding-left:1rem;position:relative}
-.info-box ul li::before{content:'';position:absolute;left:0;top:.6rem;width:5px;height:5px;border-radius:50%;background:var(--grad)}
-.arch-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;overflow-x:auto}
-.arch-box pre{font-size:.7rem;color:var(--accent3);line-height:1.5;font-family:'Cascadia Code','Fira Code',monospace;white-space:pre;margin:0}
-.metric-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
-.metric-pill{display:flex;align-items:center;gap:.6rem;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:.5rem 1.2rem}
-.metric-pill .val{font-size:1.1rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.metric-pill .lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.03em}
-.project-tags{display:flex;flex-wrap:wrap;gap:.35rem}
-.project-tag{padding:.2rem .5rem;border-radius:5px;font-size:.65rem;font-weight:600;background:rgba(255,255,255,.05);color:var(--text2);border:1px solid var(--border)}
-.challenge-item{margin-bottom:1rem}
-.challenge-item h5{font-size:.85rem;font-weight:700;color:var(--accent2);margin-bottom:.25rem}
-.challenge-item p{font-size:.8rem;color:var(--text2);line-height:1.7}
-@media(max-width:768px){
-  .project-grid-2,.project-grid-3,.project-grid-4{grid-template-columns:1fr}
-  .project-header{flex-wrap:wrap}
-  .project-header .project-period{margin-left:0}
-}
-
-/* Side Projects */
-.side-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
-.side-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;transition:transform .3s,border-color .3s}
-.side-card:hover{transform:translateY(-4px);border-color:rgba(124,58,237,.3)}
-.side-card h3{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
-.side-card .side-desc{font-size:.8rem;color:var(--text2);margin-bottom:.75rem;line-height:1.6}
-.side-card .side-meta{font-size:.7rem;color:var(--text3)}
-
-/* Timeline */
-.timeline{position:relative;padding-left:2rem}
-.timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent1),var(--accent2),var(--accent3))}
-.timeline-item{position:relative;margin-bottom:2rem;padding-left:2rem}
-.timeline-item::before{content:'';position:absolute;left:-2rem;top:.4rem;width:16px;height:16px;border-radius:50%;background:var(--bg);border:3px solid var(--accent1);z-index:1}
-.timeline-item:nth-child(2)::before{border-color:var(--accent2)}
-.timeline-item:nth-child(3)::before{border-color:var(--accent3)}
-.timeline-item:nth-child(4)::before{border-color:#22c55e}
-.timeline-item:nth-child(5)::before{border-color:#f59e0b}
-.timeline-year{font-size:.75rem;font-weight:700;color:var(--accent1);text-transform:uppercase;letter-spacing:.05em}
-.timeline-item h3{font-size:1.05rem;font-weight:700;margin:.25rem 0 .15rem}
-.timeline-item p{font-size:.85rem;color:var(--text2)}
-
-/* Contact */
-.contact-grid{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
-.contact-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;transition:transform .3s,border-color .3s;min-width:200px}
-.contact-card:hover{transform:translateY(-4px);border-color:rgba(124,58,237,.3)}
-.contact-card i{font-size:1.25rem;color:var(--accent1)}
-.contact-card .info .label{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
-.contact-card .info .value{font-size:.9rem;font-weight:600}
-
-/* Footer */
-footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text3);font-size:.8rem}
-
-/* Animations */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
-/* Responsive */
-@media(max-width:768px){
-  nav .links{display:none;position:absolute;top:64px;left:0;right:0;background:rgba(10,10,15,.95);flex-direction:column;padding:1rem 2rem;gap:.75rem;border-bottom:1px solid var(--border)}
-  nav .links.open{display:flex}
-  .hamburger{display:block}
-  .project-inner{grid-template-columns:1fr}
-  .hero .stats{gap:1rem}
-  .hero .stat .num{font-size:1.5rem}
-  section{padding:3rem 1.25rem}
-}
+/* 2-card grid */
+.grid-slide-2 .slide-body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr;gap:16px;padding:16px 24px}
 </style>
 </head>
 <body>
+<div class="deck">
 
-<!-- Nav -->
-<nav>
-  <div class="inner">
-    <div class="logo">RGH</div>
-    <button class="hamburger" onclick="document.querySelector('.links').classList.toggle('open')" aria-label="Menu">
-      <i class="fas fa-bars"></i>
-    </button>
-    <ul class="links">
-      <li><a href="#skills">Tech Stack</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#side-projects">Side Projects</a></li>
-      <li><a href="#timeline">Background</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </div>
-</nav>
-
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="badge">AI Agent Builder & System Architect</div>
-    <h1>류기훈 <span class="grad">Ryu Gihun</span></h1>
-    <p class="subtitle">
-      문제 정의부터 시스템 운영까지.<br>
-      AI 올라운더입니다.
-    </p>
-    <div class="stats">
-      <div class="stat"><div class="num">15+</div><div class="label">Projects</div></div>
-      <div class="stat"><div class="num">10+</div><div class="label">AI Agents Built</div></div>
-      <div class="stat"><div class="num">3+ yr</div><div class="label">System Operation</div></div>
-      <div class="stat"><div class="num">8+</div><div class="label">LLM Models</div></div>
-    </div>
-  </div>
-  <div class="scroll-hint"><i class="fas fa-chevron-down"></i></div>
-</section>
-
-<!-- Tech Stack -->
-<section id="skills">
-  <div class="container">
-    <div class="section-header reveal">
-      <h2>Tech <span class="grad">Stack</span></h2>
-      <p>프로덕션 수준의 AI 에이전트 시스템 구축 역량</p>
+<!-- ===== TITLE ===== -->
+<section class="slide title-slide active">
+  <div class="slide-frame">
+    <div class="title-inner">
+      <div class="name">류기훈</div>
+      <div class="tagline">AI Systems Builder</div>
       <div class="divider"></div>
+      <div class="subtitle">복잡한 문제에서 본질과 잡음을 가르고, 구조로 바꿉니다.<br>모델보다 구조에 투자하는 사람. 하네스 엔지니어링 방식으로<br>에이전트 시스템을 설계하고, 백테스트부터 실운영까지 직접 구축해 검증합니다.</div>
     </div>
-    <div class="skills-grid">
-      <div class="skill-card reveal">
-        <div class="icon" style="background:rgba(6,182,212,.15);color:var(--accent3)"><i class="fas fa-brain"></i></div>
-        <h3>AI / LLM</h3>
-        <div class="skill-tags">
-          <span class="skill-tag cyan">Multi-Agent Systems</span>
-          <span class="skill-tag cyan">Function Calling</span>
-          <span class="skill-tag cyan">MCP</span>
-          <span class="skill-tag cyan">Prompt Engineering</span>
-          <span class="skill-tag cyan">GPT / Gemini / Claude API</span>
-        </div>
+  </div>
+</section>
+
+<!-- ===== G1 DIVIDER ===== -->
+<section class="slide divider-slide">
+  <div class="slide-frame">
+    <div class="divider-inner">
+      <div class="divider-num">01</div>
+      <h2 class="divider-title">Algorithmic Trading</h2>
+      <p class="divider-desc">규칙 기반 자동매매 시스템의 설계·구현·검증·운영 전 과정을 다루는 프로젝트 그룹</p>
+      <div class="result-row">
+        <span class="result-pill"><b>8</b> Projects</span>
+        <span class="result-pill"><b>77</b> 개월 실증</span>
+        <span class="result-pill"><b>0</b> 손실월</span>
+        <span class="result-pill"><b>1,700+</b> Tests</span>
       </div>
-      <div class="skill-card reveal">
-        <div class="icon" style="background:rgba(59,130,246,.15);color:var(--accent2)"><i class="fas fa-server"></i></div>
-        <h3>Backend</h3>
-        <div class="skill-tags">
-          <span class="skill-tag blue">FastAPI</span>
-          <span class="skill-tag blue">SQLAlchemy</span>
-          <span class="skill-tag blue">SQLite / PostgreSQL</span>
-          <span class="skill-tag blue">REST API</span>
+    </div>
+  </div>
+</section>
+
+<!-- G1 Grid 1: Core Systems -->
+<section class="slide grid-slide">
+  <div class="slide-frame">
+    <div class="slide-header"><div><div class="meta">Algorithmic Trading</div><h1>Core Systems</h1></div></div>
+    <div class="slide-body">
+      <div class="grid-card">
+        <h3>BTC Futures Trading Bot</h3>
+        <p class="gc-desc">7개 명세서 기반 상태머신 선물 자동매매 봇. 부분 체결·사용자 개입·강제 청산 등 실운영 엣지 케이스를 체계적으로 처리.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>"거래소가 진실" — 불일치 시 거래소 기준 보정</li>
+          <li>"애매하면 USER_MANAGED" — 멈추고 알리는 것이 안전</li>
+          <li>SimulatedClient로 mock 누락 버그 구조적 차단</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>12,650</b> LOC</span>
+          <span class="gc-pill"><b>896</b> Tests</span>
+          <span class="gc-pill"><b>7</b> Specs</span>
         </div>
+        <div class="gc-tags"><span class="gc-tag">State Machine</span><span class="gc-tag">Binance</span><span class="gc-tag">Harness Eng.</span></div>
       </div>
-      <div class="skill-card reveal">
-        <div class="icon" style="background:rgba(124,58,237,.15);color:var(--accent1)"><i class="fas fa-desktop"></i></div>
-        <h3>Frontend</h3>
-        <div class="skill-tags">
-          <span class="skill-tag">Streamlit</span>
-          <span class="skill-tag">Vanilla JS</span>
-          <span class="skill-tag">Chart.js</span>
-          <span class="skill-tag">Capacitor</span>
+      <div class="grid-card">
+        <h3>BTC Divergence DCA — Paper</h3>
+        <p class="gc-desc">"시그널이 틀려도 시스템이 무너지지 않는" DCA 구조적 안정성을 77개월 실증 데이터로 검증하는 SCIE/SSCI 논문.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>"예측 배제" → "구조적 안정성"으로 중심 전환</li>
+          <li>3-Tier 드로다운 분해 프레임워크 제안</li>
+          <li>몬테카를로 1,000회 — 시그널 가치는 리스크 통제</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>0</b> 손실월/77</span>
+          <span class="gc-pill">Sharpe <b>1.731</b></span>
+          <span class="gc-pill">p <b>0.021</b></span>
         </div>
+        <div class="gc-tags"><span class="gc-tag">Monte Carlo</span><span class="gc-tag">Walk-Forward</span><span class="gc-tag">DCA</span></div>
       </div>
-      <div class="skill-card reveal">
-        <div class="icon" style="background:rgba(34,197,94,.15);color:#22c55e"><i class="fas fa-chart-line"></i></div>
-        <h3>Data & Analysis</h3>
-        <div class="skill-tags">
-          <span class="skill-tag green">pandas</span>
-          <span class="skill-tag green">NumPy</span>
-          <span class="skill-tag green">Backtesting</span>
-          <span class="skill-tag green">Grid Search</span>
-          <span class="skill-tag green">Monte Carlo</span>
-          <span class="skill-tag green">Walk-Forward</span>
+      <div class="grid-card">
+        <h3>BTC Spot Trading Bot</h3>
+        <p class="gc-desc">현물 시장 프로덕션급 자동매매. QueryResponse 패턴으로 "API 실패 vs 빈 결과" 타입 레벨 구분.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>동기 단일 프로세스 — race condition 원천 차단</li>
+          <li>ENTERING 비영속화 — 크래시 후 거래소 기준 복구</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>13,240</b> LOC</span>
+          <span class="gc-pill"><b>336</b> Tests</span>
+          <span class="gc-pill"><b>62</b> E2E</span>
         </div>
+        <div class="gc-tags"><span class="gc-tag">FSM</span><span class="gc-tag">DryRun</span><span class="gc-tag">Spec-Driven</span></div>
       </div>
-      <div class="skill-card reveal">
-        <div class="icon" style="background:rgba(59,130,246,.15);color:var(--accent2)"><i class="fas fa-cloud"></i></div>
-        <h3>Infra & DevOps</h3>
-        <div class="skill-tags">
-          <span class="skill-tag blue">AWS EC2</span>
-          <span class="skill-tag blue">24/7 Operation</span>
-          <span class="skill-tag blue">Telegram Bot</span>
-          <span class="skill-tag blue">Discord Bot</span>
+      <div class="grid-card">
+        <h3>DCA Backtesting Engine</h3>
+        <p class="gc-desc">DCA 다중 진입·평단 관리·동적 익절을 정밀 시뮬레이션. recovery 간격 모드로 파라미터 의도 직접 반영.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>"출력 기준" 설계로 파라미터 해석 용이</li>
+          <li>Look-ahead bias 철저 방지 — shift(1) 일관</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>2,568</b> LOC</span>
+          <span class="gc-pill"><b>6</b> 진입 모드</span>
         </div>
+        <div class="gc-tags"><span class="gc-tag">Grid Search</span><span class="gc-tag">pandas</span><span class="gc-tag">Backtesting</span></div>
       </div>
-      <div class="skill-card reveal">
-        <div class="icon" style="background:rgba(124,58,237,.15);color:var(--accent1)"><i class="fas fa-sitemap"></i></div>
-        <h3>Domain Expertise</h3>
-        <div class="skill-tags">
-          <span class="skill-tag">Algorithmic Trading</span>
-          <span class="skill-tag">K-Entertainment</span>
-          <span class="skill-tag">NLP</span>
-          <span class="skill-tag">Design Science Research</span>
+    </div>
+  </div>
+</section>
+
+<!-- G1 Grid 2: Signal & Alert Systems -->
+<section class="slide grid-slide">
+  <div class="slide-frame">
+    <div class="slide-header"><div><div class="meta">Algorithmic Trading</div><h1>Signal & Alert Systems</h1></div></div>
+    <div class="slide-body">
+      <div class="grid-card">
+        <h3>Trading Alert Signal Bot</h3>
+        <p class="gc-desc">거래소 원본 데이터로 5가지 신호 모드 병렬 감지 + 우선순위 필터링. 트레이딩뷰 의존 제거.</p>
+        <div class="gc-section">핵심</div>
+        <ul class="gc-list">
+          <li>3단계 다이버전스 감지(Standard→Moderate→Strict)</li>
+          <li>지표 직접 구현 — shift(1) 일관 적용</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>1,750</b> LOC</span>
+          <span class="gc-pill"><b>8</b> TF</span>
+          <span class="gc-pill"><b>5</b> 모드</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">ccxt</span><span class="gc-tag">Telegram</span><span class="gc-tag">Divergence</span></div>
+      </div>
+      <div class="grid-card">
+        <h3>Futures Signal Bot System</h3>
+        <p class="gc-desc">단일 봇에서 6개 특화 봇으로 점진 진화. 멀티TF·멀티모드 시그널 + 구독자 관리.</p>
+        <div class="gc-section">핵심</div>
+        <ul class="gc-list">
+          <li>동적 TP — 물타기 횟수에 따라 목표 수익률 축소</li>
+          <li>3중 중복 방지 — 캔들 시간+쿨다운+포지션 ID</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>6</b> 봇</span>
+          <span class="gc-pill"><b>7</b> 지표</span>
+          <span class="gc-pill"><b>3</b> 모드</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">ccxt</span><span class="gc-tag">Telegram</span><span class="gc-tag">Multi-TF</span></div>
+      </div>
+      <div class="grid-card">
+        <h3>Moving Alert Signal Bot</h3>
+        <p class="gc-desc">8개 타임프레임 캔들 마감 기준 변동률 감지. 서버 UTC 오프셋 자동 감지로 환경 독립 스케줄링.</p>
+        <div class="gc-section">핵심</div>
+        <ul class="gc-list">
+          <li>캔들 마감 기반 — false positive 구조적 차단</li>
+          <li>RUNNING_FLAG + LAST_PROCESSED 이중 중복 차단</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>8</b> TF</span>
+          <span class="gc-pill"><b>24/7</b></span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">ccxt</span><span class="gc-tag">Telegram</span><span class="gc-tag">Discord</span></div>
+      </div>
+      <div class="grid-card">
+        <h3>Unrealized Signal Bot</h3>
+        <p class="gc-desc">500개 캔들 미도달 시그널 전수 스캔. ccxt + python-binance 이중 클라이언트로 한계 극복.</p>
+        <div class="gc-section">핵심</div>
+        <ul class="gc-list">
+          <li>리버스 모드 — REVERSE=True로 역추세 전략 커버</li>
+          <li>가격 정밀도 이중 보정 파이프라인</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>500</b> 캔들</span>
+          <span class="gc-pill"><b>24/7</b></span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">ccxt</span><span class="gc-tag">python-binance</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== G2 DIVIDER ===== -->
+<section class="slide divider-slide">
+  <div class="slide-frame">
+    <div class="divider-inner">
+      <div class="divider-num">02</div>
+      <h2 class="divider-title">LLM Agent Systems</h2>
+      <p class="divider-desc">다중 LLM 에이전트의 자율성·합의·자동화 설계</p>
+      <div class="result-row">
+        <span class="result-pill"><b>3</b> Projects</span>
+        <span class="result-pill"><b>7+</b> LLM Models</span>
+        <span class="result-pill"><b>98.8%</b> 모델 간 일치율</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- G2 Grid: LLM Agent Projects -->
+<section class="slide grid-slide-3">
+  <div class="slide-frame">
+    <div class="slide-header"><div><div class="meta">LLM Agent Systems</div><h1>Projects</h1></div></div>
+    <div class="slide-body">
+      <div class="grid-card">
+        <h3>Election Simulation</h3>
+        <p class="gc-desc">2,000명 LLM 시민 에이전트가 뉴스를 자율 탐색·소비하고 투표하는 축소 사회 선거 시뮬레이션. 석사 논문.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>FC 자율 탐색 — 뉴스 "주입"은 경험으로 인식 못함</li>
+          <li>프레임워크 미사용 — 135줄 상태 머신 직접 구현</li>
+          <li>동적 정체성 — 1라운드 후 레이블 제거, 앵커링 차단</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>2,000</b> Agents</span>
+          <span class="gc-pill"><b>48K</b> LOC</span>
+          <span class="gc-pill"><b>10</b> FC Tools</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">GPT-5 mini</span><span class="gc-tag">Gemini Flash</span><span class="gc-tag">Function Calling</span></div>
+      </div>
+      <div class="grid-card">
+        <h3>QA Evaluation Pipeline</h3>
+        <p class="gc-desc">이커머스 Q&A 1,639개 판단을 7개 LLM 다수결 + 소수파 설득 토론으로 자동화. 98.8% 일치율.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>N-Model 다수결+토론 — 단일 모델 편향 보정 불가</li>
+          <li>SOP를 프롬프트로 정밀 인코딩 — 기준/엔진 분리</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>98.8%</b> 일치율</span>
+          <span class="gc-pill"><b>7</b> LLM</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">Multi-Agent Debate</span><span class="gc-tag">Playwright</span><span class="gc-tag">Triple OCR</span></div>
+      </div>
+      <div class="grid-card">
+        <h3>K-Ent Intelligence Agent</h3>
+        <p class="gc-desc">K-Entertainment 에이전시 9단계 수동 아웃리치를 AI 자동화. "숫자는 API로, 분석은 AI로" 원칙으로 환각 차단.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>정량 데이터는 4개 API 직접 수집, AI는 질적 분석만</li>
+          <li>Entity 통합 PK — 다형성 FK 무결성 해결</li>
+          <li>Claude Code headless — 3채널 동일 실행</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>26+</b> DB</span>
+          <span class="gc-pill"><b>6</b> API</span>
+          <span class="gc-pill"><b>25.6K</b> LOC</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">Claude Code CLI</span><span class="gc-tag">PostgreSQL</span><span class="gc-tag">Streamlit</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== G3 DIVIDER ===== -->
+<section class="slide divider-slide">
+  <div class="slide-frame">
+    <div class="divider-inner">
+      <div class="divider-num">03</div>
+      <h2 class="divider-title">AI-Powered Utility</h2>
+      <p class="divider-desc">실사용자 문제를 AI로 해결하는 도구 — 음성 장부 시스템, 중국어 학습 파이프라인</p>
+    </div>
+  </div>
+</section>
+
+<!-- G3 Grid: AI-Powered Utility Projects -->
+<section class="slide grid-slide-2">
+  <div class="slide-frame">
+    <div class="slide-header"><div><div class="meta">AI-Powered Utility</div><h1>Projects</h1></div></div>
+    <div class="slide-body">
+      <div class="grid-card">
+        <h3>선창식당 장부 관리 시스템</h3>
+        <p class="gc-desc">부모님 식당 장부·정산·매출을 음성·AI로 제어하는 모바일 앱. 60대 어머니 한 분이 유일한 사용자라는 제약이 모든 설계의 출발점.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>Function Calling — 오타·방언에 강건한 LLM 의도 해석</li>
+          <li>PNG 정산서 — 카카오톡 바로 미리보기 가능</li>
+          <li>확인 후 실행 — 오입력 복구 비용이 한 단계 추가보다 큼</li>
+          <li>Vanilla JS SPA — WebView 초기 로딩 0.5초 이내</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>7,300+</b> LOC</span>
+          <span class="gc-pill"><b>12</b> AI 도구</span>
+          <span class="gc-pill"><b>Live</b> 운영</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">FastAPI</span><span class="gc-tag">GPT-5-mini</span><span class="gc-tag">Capacitor</span><span class="gc-tag">Pillow</span></div>
+      </div>
+      <div class="grid-card">
+        <h3>HSK Listening Analyzer</h3>
+        <p class="gc-desc">HSK 5급 듣기 MP3→음성인식→LLM 분석→인터랙티브 HTML. LLM 출력 불일치를 가드레일로 제어.</p>
+        <div class="gc-section">설계 판단</div>
+        <ul class="gc-list">
+          <li>FunASR Paraformer-zh — Whisper 대비 중국어 우수</li>
+          <li>2단계 캐시 분리 — ASR(불변)과 GPT(재생성) 분리</li>
+          <li>original 기준 렌더링 — AI 누락과 무관하게 원문 100% 보존</li>
+        </ul>
+        <div class="gc-results">
+          <span class="gc-pill"><b>8,429</b> 단어</span>
+          <span class="gc-pill"><b>100%</b> 품사 일관성</span>
+          <span class="gc-pill"><b>103</b> Tests</span>
+        </div>
+        <div class="gc-tags"><span class="gc-tag">FunASR</span><span class="gc-tag">GPT-5-mini</span><span class="gc-tag">Jinja2</span><span class="gc-tag">pytest</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== G4 DIVIDER ===== -->
+<section class="slide divider-slide">
+  <div class="slide-frame">
+    <div class="divider-inner">
+      <div class="divider-num">04</div>
+      <h2 class="divider-title">Data Pipeline &amp; Text Mining</h2>
+      <p class="divider-desc">2023~2025 학부/대학원 초기 — 웹 크롤링·NLP·토픽 모델링</p>
+    </div>
+  </div>
+</section>
+
+<!-- G4: Projects Overview -->
+<section class="slide">
+  <div class="slide-frame">
+    <div class="slide-header"><div><div class="meta">Data Pipeline &amp; Text Mining</div><h1>Projects Overview</h1></div></div>
+    <div class="slide-body">
+      <div class="section-title">YouTube Comment Crawler</div>
+      <p class="desc">YouTube Data API v3 + Google Translation으로 댓글 전량 수집 + 다국어 자동 번역. langdetect 3단계 필터로 번역 비용 최적화.</p>
+      <div class="tag-row"><span class="tag">YouTube API</span><span class="tag">Google Translation</span><span class="tag">pandas</span></div>
+
+      <div class="section-title" style="margin-top:12px">fromis_9 팬덤 텍스트 마이닝</div>
+      <p class="desc">55,000건 댓글 수집 → bareunpy + 30개 팬덤 사용자 사전 → 멤버별 LDA 토픽 모델링·감성·네트워크 분석</p>
+      <div class="tag-row"><span class="tag">Selenium</span><span class="tag">bareunpy</span><span class="tag">LDA</span><span class="tag">NetworkX</span></div>
+
+      <div class="section-title" style="margin-top:12px">MOSS — K-Pop 초동 데이터 파이프라인</div>
+      <p class="desc">비정형 판매량 2,789건을 정규표현식 4패턴으로 파싱 → 정형 CSV. 외부 의존성 제로.</p>
+      <div class="tag-row"><span class="tag">Python</span><span class="tag">regex</span><span class="tag">ETL</span></div>
+
+      <div class="section-title" style="margin-top:12px">증권사 MTS 앱 리뷰 분석</div>
+      <p class="desc">7개 증권사 리뷰 크롤링 → Komoran + 600+ 도메인 사전 → LDA + 동시출현 네트워크 (팀 프로젝트)</p>
+      <div class="tag-row"><span class="tag">Selenium</span><span class="tag">Komoran</span><span class="tag">LDA</span></div>
+
+      <div class="section-title" style="margin-top:12px">Scikit-Surprise Fork</div>
+      <p class="desc">11개 협업 필터링 알고리즘(SVD, KNN, NMF) 내부 구현 분석 + Cython 최적화 학습</p>
+      <div class="tag-row"><span class="tag">Cython</span><span class="tag">SVD</span><span class="tag">scikit-learn API</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TIMELINE ===== -->
+<section class="slide">
+  <div class="slide-frame">
+    <div class="slide-header"><div><div class="meta">Background</div><h1>경력 &amp; 교육</h1></div></div>
+    <div class="slide-body">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="period">2024 — Present</div>
+          <div class="role">경희대학교 경영대학원 석사 (수료)</div>
+          <div class="org">빅데이터응용학과 · LLM 기반 선거 시뮬레이션 연구 (DSR 방법론)</div>
+        </div>
+        <div class="timeline-item">
+          <div class="period">2024.07 — 2024.12</div>
+          <div class="role">AI 컨설팅 회사 · IT 컨설턴트</div>
+          <div class="org">스마트팜 분야 AI 도입 컨설팅</div>
+        </div>
+        <div class="timeline-item">
+          <div class="period">2023 — Present</div>
+          <div class="role">BTC System Trading</div>
+          <div class="org">암호화폐 시스템 트레이딩 생태계 독자 개발·운영 (3년+)</div>
+        </div>
+        <div class="timeline-item">
+          <div class="period">2016 — 2021</div>
+          <div class="role">중앙대학교 · 언론정보학과</div>
+          <div class="org">GPA 4.26/4.5 · 언론홍보, 브랜드기획 실무 경험</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Projects -->
-<section id="projects" style="background:var(--bg2)">
-  <div class="container">
-    <div class="section-header reveal">
-      <h2>Featured <span class="grad">Projects</span></h2>
-      <p>설계부터 운영까지, 단독 수행한 프로덕션 시스템</p>
-      <div class="divider"></div>
-    </div>
-
-    <!-- Project 01: Election Simulator -->
-    <div class="project-section reveal">
-      <div class="project-header">
-        <span class="project-num">01</span>
-        <h3>Election Simulator &mdash; M.S. Thesis</h3>
-        <span class="project-period">2026.03 ~ Present</span>
-      </div>
-      <p class="project-subtitle">2,000명의 LLM 시민 에이전트가 뉴스를 자율 탐색·소비하고, 여론조사에 응답하며, 투표하는 축소 사회 선거 예측 시스템. 선행연구의 "뉴스 주입해도 MAE 불변" 문제를 에이전트 자율성으로 해결.</p>
-      <div class="metric-row">
-        <div class="metric-pill"><span class="val">2,000</span><span class="lbl">Citizen Agents</span></div>
-        <div class="metric-pill"><span class="val">10</span><span class="lbl">Function Calling Tools</span></div>
-        <div class="metric-pill"><span class="val">2 LLM</span><span class="lbl">Cross-Validation</span></div>
-        <div class="metric-pill"><span class="val">DSR</span><span class="lbl">Methodology</span></div>
-      </div>
-      <div class="arch-box">
-<pre>Entry Points (Streamlit / CLI)
-        │
-  Simulation Engine (Round Loop)
-  ┌──────────┬──────────┬──────────┐
-  │ News     │ Citizen  │ Poll     │
-  │ Engine   │ Agent    │ Engine   │
-  │(RSS+NLP) │(tool_loop│(sampling)│
-  │          │ 135 LOC) │          │
-  └────┬─────┴────┬─────┴────┬─────┘
-       │    Function Calling   │
-       │  ┌──────────────┐    │
-       │  │ 10 Tools:    │    │
-       │  │ browse_news  │    │
-       │  │ read_article │    │
-       │  │ reflect ...  │    │
-       │  └──────────────┘    │
-       └──────────┬───────────┘
-           SQLite (WAL) + Plotly Dashboard</pre>
-      </div>
-      <div class="project-grid-2">
-        <div class="info-box">
-          <h4>왜 프레임워크 없이 직접 구현했는가</h4>
-          <ul>
-            <li>LangChain/ReAct의 "thought" 출력 → 2,000 에이전트에서 토큰 비용 7배 증가</li>
-            <li>프레임워크 메모리 모듈이 "인상(impression)"과 "의견(opinion)" 구분 불가 — 연구 핵심 설계와 충돌</li>
-            <li>tool_loop.py 135줄 상태머신으로 모든 도구 호출이 DB에 기록 → 학술 재현성 확보</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>핵심 설계 결정</h4>
-          <ul>
-            <li><strong>자율 판단 원칙</strong>: 프롬프트에 행동 지시 없음 — 에이전트가 도구를 스스로 선택</li>
-            <li><strong>인상 축적 모델</strong>: 뉴스 소비 → 인상만 기록 → 투표 시점에만 의견 표출</li>
-            <li><strong>듀얼 LLM</strong>: GPT-5 mini + Gemini Flash로 모델 편향 분리 (RQ2)</li>
-            <li><strong>Gemini Flash Lite</strong>: $0.10/1M으로 대규모 시뮬레이션 비용 최적화</li>
-          </ul>
-        </div>
-      </div>
-      <div class="project-grid-2" style="margin-top:1.5rem">
-        <div class="info-box">
-          <h4>핵심 구현</h4>
-          <ul>
-            <li><strong>내면 축적 메커니즘</strong>: 매 라운드 에이전트 반응을 2~3문장 "인상"으로 압축·누적. 의견 아닌 느낌을 축적하여 자기강화 루프 방지, 라운드당 ~100토큰으로 비용 효율적</li>
-            <li><strong>뉴스 파이프라인 v2</strong>: RSS 4개 매체(보수2+진보2) → Trafilatura 본문추출 → LLM 분류(Enum 강제) → 카테고리별 클러스터링. media_count≥2 필터로 의제설정이론 적용</li>
-            <li><strong>데이터 계약</strong>: interfaces.py에 LLMResponse·ToolContext·ToolLoopResult 3개 dataclass로 모듈 간 인터페이스 정의. mypy strict으로 컴파일 타임 검증</li>
-            <li><strong>선택적 노출 모델</strong>: 동일 뉴스 풀에서 LLM이 자율 선택 → 선택적 노출(Stroud, 2011)의 자연 발생 관찰</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>기술적 도전과 해결</h4>
-          <div class="challenge-item">
-            <h5>뉴스가 투표에 영향을 미치지 않는 문제</h5>
-            <p>v1에서 뉴스를 프롬프트에 직접 주입 → 투표 결과 불변 (선행연구와 동일 실패). 원인: LLM이 주입된 정보를 "경험"이 아닌 단순 "정보"로 인식. → Function Calling 자율 탐색으로 전면 재설계하여 해결</p>
-          </div>
-          <div class="challenge-item">
-            <h5>OpenAI vs Gemini FC 포맷 비호환</h5>
-            <p>두 API의 메시지 구조가 근본적으로 상이. LangChain 래퍼는 FC 세부 제어를 제한. → llm_client.py(278줄) 통합 래퍼 직접 구현, 상위 모듈에는 동일한 LLMResponse 인터페이스만 노출</p>
-          </div>
-          <div class="challenge-item">
-            <h5>2,000명 규모 비용 최적화</h5>
-            <p>초기 추정 시뮬레이션 1회 $400+. → Gemini Flash Lite($0.10/1M), 여론조사 200명 표본추출, FC 루프 단일 세션 통합으로 ~$50으로 87% 절감</p>
-          </div>
-        </div>
-      </div>
-      <div class="project-tags">
-        <span class="project-tag">Python</span><span class="project-tag">GPT-5 mini</span><span class="project-tag">Gemini 2.5 Flash</span><span class="project-tag">Function Calling</span><span class="project-tag">Streamlit</span><span class="project-tag">SQLite</span><span class="project-tag">Plotly</span><span class="project-tag">mypy strict</span><span class="project-tag">GitHub Actions</span><span class="project-tag">EC2</span>
-      </div>
-    </div>
-
-    <!-- Project 02: PAA -->
-    <div class="project-section reveal">
-      <div class="project-header">
-        <span class="project-num">02</span>
-        <h3>PAA Intelligence Agent</h3>
-        <span class="project-period">2026.03 ~ Present</span>
-      </div>
-      <p class="project-subtitle">K-Entertainment 아티스트-브랜드 매칭 인텔리전스 플랫폼. 에이전시의 9단계 수동 아웃리치 업무를 5종 AI 에이전트가 자동화. "숫자는 API로, 분석은 AI로" 원칙으로 환각 차단. 장기 비전은 "K-Entertainment Bloomberg Terminal".</p>
-      <div class="metric-row">
-        <div class="metric-pill"><span class="val">5</span><span class="lbl">AI Agents</span></div>
-        <div class="metric-pill"><span class="val">145</span><span class="lbl">Test Cases</span></div>
-        <div class="metric-pill"><span class="val">22</span><span class="lbl">Dashboard Pages</span></div>
-        <div class="metric-pill"><span class="val">26+</span><span class="lbl">DB Tables</span></div>
-      </div>
-      <div class="arch-box">
-<pre>Frontend Layer
-  Streamlit (22p) │ Telegram Bot │ Claude Code CLI
-        └─────────┬─────────────┘
-            ClaudeClient (JSON Schema)
-                  │
-Agent Layer ──────┼──────────────────────
-  Research │ Matching │ Discovery(x2) │ BrandResearch
-                  │
-Service Layer ────┼──────────────────────
-  Storage │ SNS Collector │ Search Cache │ API Tracker
-                  │
-Data Layer ───────┼──────────────────────
-  PostgreSQL/SQLite (26+ tables, Entity PK)
-  Xpoz SDK (IG/TW) │ Bright Data (TT) │ YouTube API</pre>
-      </div>
-      <div class="project-grid-2">
-        <div class="info-box">
-          <h4>Claude Code headless 아키텍처</h4>
-          <p>가장 독특한 설계: Claude Code CLI를 subprocess로 호출하는 구조. 스킬 로직 1회 작성으로 웹 UI·Telegram 봇·CLI 세 채널에서 동일 실행. JSON Schema로 출력 포맷 강제하여 파싱 안정성 확보.</p>
-        </div>
-        <div class="info-box">
-          <h4>핵심 설계 결정</h4>
-          <ul>
-            <li><strong>Entity 통합 PK</strong>: brand/media/agency를 상위 Entity 테이블로 통합 → FK 무결성을 DB 레벨에서 보장</li>
-            <li><strong>Feature Flag</strong>: USE_MCP_SNS 환경변수로 MCP↔SerpAPI 즉시 전환</li>
-            <li><strong>레이어드 아키텍처</strong>: Models → Services → Agents → Pages 단방향 의존</li>
-          </ul>
-        </div>
-      </div>
-      <div class="project-grid-2" style="margin-top:1.5rem">
-        <div class="info-box">
-          <h4>핵심 구현</h4>
-          <ul>
-            <li><strong>5종 AI 에이전트</strong>: Research(아티스트 심층 리서치), BrandResearch(브랜드 분석), ArtistDiscovery/BrandDiscovery(신규 발굴), Matching(아티스트-브랜드 적합도 평가)</li>
-            <li><strong>SNS 데이터 수집</strong>: Xpoz SDK(Instagram/Twitter) + Bright Data REST(TikTok) + YouTube Data API 조합. 단일 API로 전체 커버 불가 → 플랫폼별 최적 API 조합</li>
-            <li><strong>"숫자는 API, 분석은 AI"</strong>: 팔로워·참여율 등 정량 데이터는 외부 API, AI는 질적 분석만 담당 → 환각 차단 설계 원칙</li>
-            <li><strong>Google Knowledge Graph</strong>: Score 기반 엔티티 신뢰도 정량화 (≥1000 신뢰, &lt;100 오탐)</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>기술적 도전과 해결</h4>
-          <div class="challenge-item">
-            <h5>Claude Code subprocess 타임아웃</h5>
-            <p>headless 호출 시 300초 타임아웃으로 복잡한 리서치 스킬 실패. → 스킬별 타임아웃 차등 설정 + 중간 결과 캐싱으로 재시도 시 이어서 진행</p>
-          </div>
-          <div class="challenge-item">
-            <h5>MCP → SerpAPI 롤백 안전망</h5>
-            <p>MCP 기반 SNS 수집이 불안정할 시 즉시 롤백 필요. → USE_MCP_SNS 환경변수 하나로 경로 전환, .env 수정만으로 코드 변경 없이 즉시 롤백</p>
-          </div>
-          <div class="challenge-item">
-            <h5>다형성 FK 문제</h5>
-            <p>campaign_targets가 brand/media/agency 세 타입 모두를 참조해야 하는 요구사항. → Entity 상위 테이블 도입, 통합 PK로 FK 무결성을 DB 레벨에서 보장</p>
-          </div>
-        </div>
-      </div>
-      <div class="project-tags">
-        <span class="project-tag">Streamlit</span><span class="project-tag">SQLAlchemy</span><span class="project-tag">PostgreSQL</span><span class="project-tag">GPT-5 mini</span><span class="project-tag">Claude Code CLI</span><span class="project-tag">MCP</span><span class="project-tag">Telegram</span><span class="project-tag">Xpoz SDK</span><span class="project-tag">Bright Data</span><span class="project-tag">Ruff</span><span class="project-tag">GitHub Actions</span><span class="project-tag">EC2</span>
-      </div>
-    </div>
-
-    <!-- Project 03: E-Commerce QA -->
-    <div class="project-section reveal">
-      <div class="project-header">
-        <span class="project-num">03</span>
-        <h3>E-Commerce QA Auto-Evaluation Pipeline</h3>
-        <span class="project-period">2026.02 ~ 2026.04</span>
-      </div>
-      <p class="project-subtitle">이커머스 상품 Q&A 데이터를 크롤링·수집하고, 최대 7개 LLM이 독립 평가 → 다수결 투표 → 소수파 설득 토론을 순차 수행하는 3-Phase 자동 품질 판정 파이프라인. 다수결의 신뢰성은 독립 판단자 수에 비례한다는 원칙으로 98.8% 교차 일치율 달성.</p>
-      <div class="metric-row">
-        <div class="metric-pill"><span class="val">7</span><span class="lbl">LLM Models</span></div>
-        <div class="metric-pill"><span class="val">6</span><span class="lbl">Eval Criteria</span></div>
-        <div class="metric-pill"><span class="val">98.8%</span><span class="lbl">Cross Agreement</span></div>
-        <div class="metric-pill"><span class="val">3-Phase</span><span class="lbl">Pipeline</span></div>
-      </div>
-      <div class="arch-box">
-<pre>main.py (Orchestrator)
-  ├── precrawl()
-  │   ├── playwright_crawler (Stealth v2)
-  │   └── triple_ocr (EasyOCR + PaddleOCR + Surya)
-  │
-  └── debate.py (3-Phase Engine)
-      ├── Phase 1: 독립 평가 (N models parallel)
-      ├── Phase 2: 다수결 투표 (majority vote)
-      └── Phase 3: 소수파 설득 토론 (minority persuasion)
-            │
-      agents/ (Factory + Session Pattern)
-      ├── GPT-5 mini (OpenAI)
-      ├── Qwen3-32B (Groq)
-      ├── DeepSeek V3.2 (OpenRouter)
-      └── Claude Sonnet 4 (Anthropic)</pre>
-      </div>
-      <div class="project-grid-3">
-        <div class="info-box">
-          <h4>왜 멀티 프로바이더인가</h4>
-          <p>서로 다른 학습 데이터·아키텍처의 모델을 조합하여 특정 모델 편향이 결과를 지배하지 않도록 설계. Groq 무료 티어 + GPT-5 mini 조합으로 건당 비용 최소화.</p>
-        </div>
-        <div class="info-box">
-          <h4>트리플 OCR</h4>
-          <p>상품 상세 이미지의 텍스트 추출에 단일 OCR은 한국어 인식률 불안정. EasyOCR(범용) + PaddleOCR(아시아어) + Surya(레이아웃 인식) 3중 교차 검증으로 신뢰도 확보.</p>
-        </div>
-        <div class="info-box">
-          <h4>봇 감지 우회</h4>
-          <p>Playwright + Stealth v2 + Chrome 쿠키 자동 복사 + 홈페이지 워밍업 3단계 전략. Akamai CDN의 CDP 탐지를 우회.</p>
-        </div>
-      </div>
-      <div class="project-grid-2" style="margin-top:1.5rem">
-        <div class="info-box">
-          <h4>핵심 구현</h4>
-          <ul>
-            <li><strong>3-Phase Debate Engine</strong>: Phase 1(N개 모델 병렬 독립 평가, ThreadPoolExecutor) → Phase 2(기준별 다수결, 과반 확정/min() 보수적 채택) → Phase 3(소수파 설득 토론 2라운드, 합의 실패 시 다수결 채택)</li>
-            <li><strong>팩토리+세션 패턴</strong>: AgentFactory(ABC)로 OpenAI/Groq/OpenRouter/Anthropic 통일. 세션 기반 대화(Phase 1~2)와 단발 호출(Phase 3 토론) 분리</li>
-            <li><strong>Q 4기준 통합 호출</strong>: 기준별 개별 호출 시 4배 비용. 통합 프롬프트로 기준 간 일관성 향상 + Pydantic 검증</li>
-            <li><strong>토론 스킵 최적화</strong>: 같은 그룹에 확정 0점이 있으면 min() 사전 시뮬레이션으로 불필요한 토론 생략</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>기술적 도전과 해결</h4>
-          <div class="challenge-item">
-            <h5>SDP Truncation 오분류</h5>
-            <p>relevant_SDP_text 최대 22,000자가 8,000자로 절단 → 핵심 정보 누락으로 Answerability 오판. Evidence와 Answerability의 교차 검증 패턴으로 발견. → SDP 전체를 프롬프트에 임베딩, 모델별 context window에 동적 조절</p>
-          </div>
-          <div class="challenge-item">
-            <h5>Akamai 봇 감지 우회</h5>
-            <p>CDP 연결 자체를 탐지하여 UA 변경·webdriver 플래그만으로 우회 불가. → Playwright + stealth v2 + Chrome 쿠키 복사 + 홈페이지 워밍업 3단계. 배치 크롤링(5개 단위) + 쿨다운(5~8분)으로 IP 차단 방지</p>
-          </div>
-          <div class="challenge-item">
-            <h5>모델 간 경계 사례 불일치</h5>
-            <p>3자 비교에서 27건 불일치, 대부분 "partially_answerable" 판단. SOP 자체의 모호성이 원인. → 사람 전건 리뷰로 해석 기준 확립, 자동화 범위를 "기준이 명확한 항목"으로 한정</p>
-          </div>
-        </div>
-      </div>
-      <div class="project-tags">
-        <span class="project-tag">Python</span><span class="project-tag">OpenAI</span><span class="project-tag">Groq</span><span class="project-tag">Claude</span><span class="project-tag">OpenRouter</span><span class="project-tag">Playwright</span><span class="project-tag">EasyOCR</span><span class="project-tag">PaddleOCR</span><span class="project-tag">Surya</span><span class="project-tag">Pydantic v2</span><span class="project-tag">Ruff</span>
-      </div>
-    </div>
-
-    <!-- Project 04: 선창식당 -->
-    <div class="project-section reveal">
-      <div class="project-header">
-        <span class="project-num">04</span>
-        <h3>AI Restaurant Management System</h3>
-        <span class="project-period">2026.03 ~ 운영 중</span>
-      </div>
-      <p class="project-subtitle">부모님 식당의 장부·정산·매출 분석을 음성·AI 챗봇으로 제어하는 모바일 웹앱. 실사용자가 60대 어머니 한 분이라는 제약이 모든 설계 결정의 출발점. "거문창호 점심 배달 백반 3개" 한마디로 장부 자동 입력. v1.9.1, 실서비스 운영 중.</p>
-      <div class="metric-row">
-        <div class="metric-pill"><span class="val">13</span><span class="lbl">AI Function Tools</span></div>
-        <div class="metric-pill"><span class="val">STT+TTS</span><span class="lbl">Voice Interface</span></div>
-        <div class="metric-pill"><span class="val">v1.9.1</span><span class="lbl">19 Releases</span></div>
-        <div class="metric-pill"><span class="val">Live</span><span class="lbl">Production</span></div>
-      </div>
-      <div class="arch-box">
-<pre>Android APK (Capacitor WebView)
-  └── Vanilla JS SPA (2,700 LOC)
-      │  홈 │ 입력 │ AI │ 조회 │ 거래처 │ 메뉴 │ 정산
-      │  Chart.js    Web Speech API
-      │
-  REST API (JSON)
-      │
-  FastAPI Server (11 Routers)
-  ├── AI Agent (GPT-5-mini, 13 Tools)
-  ├── NLP Parser │ Image Gen (PIL) │ SMS/TTS
-  └── SQLite (WAL)</pre>
-      </div>
-      <div class="project-grid-2">
-        <div class="info-box">
-          <h4>왜 이 기술 스택인가</h4>
-          <ul>
-            <li><strong>Vanilla JS</strong>: React/Vue 빌드 파이프라인이 WebView에서 불리. 번들 없이 직접 서빙</li>
-            <li><strong>GPT-5 mini</strong>: Claude Sonnet 대비 12배 저렴. 하루 10~20회 → 월 $1 미만</li>
-            <li><strong>SQLite</strong>: 단일 사용자에 PostgreSQL은 과잉. 파일 기반 백업 용이</li>
-            <li><strong>Capacitor</strong>: 기존 웹앱을 APK로 래핑. Flutter 대비 재작성 불필요</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>기술적 도전</h4>
-          <ul>
-            <li><strong>타임존 버그</strong>: UTC 저장 → KST 표시 불일치 → 서버 전역 KST 통일로 해결</li>
-            <li><strong>WebView 캐시</strong>: 앱 업데이트 후 구버전 표시 → 버전 쿼리스트링 자동 부여</li>
-            <li><strong>EC2 메모리</strong>: t3.medium 4GB에서 faster-whisper 로딩 불안정 → Web Speech API 전환</li>
-          </ul>
-        </div>
-      </div>
-      <div class="project-grid-2" style="margin-top:1.5rem">
-        <div class="info-box">
-          <h4>핵심 구현</h4>
-          <ul>
-            <li><strong>AI Agent (13 Tools)</strong>: "오늘 매출 알려줘"부터 "거문창호 3월 정산해줘"까지 자연어로 13개 Function Calling 도구 자율 실행. 확인 후 실행 패턴으로 비전문가 안심 UX</li>
-            <li><strong>정산서 PNG 생성</strong>: Pillow로 거래처별 미결제 내역을 PNG 이미지화 → 카톡/문자로 바로 공유. PDF 대비 뷰어 불필요</li>
-            <li><strong>도메인 특화 정렬</strong>: 거래처명 자동 인식(거문창호, 통영수산 등) + 메뉴별 가격 자동 매칭. NLP 파서로 "점심 배달 백반 3개" 파싱</li>
-            <li><strong>음성 이중 전략</strong>: Web Speech API(무료, 1순위) → OpenAI Whisper(유료, 폴백). 음성 합성은 OpenAI TTS + speechSynthesis 폴백</li>
-            <li><strong>19개 릴리즈</strong>: v1.0 → v1.9.1까지 지속적 개선. 실사용자 피드백 기반 반복 배포</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>설계 철학: "어머니가 쓸 수 있어야 한다"</h4>
-          <ul>
-            <li><strong>큰 글씨·최소 터치</strong>: 핵심 정보 3개만 상단 노출, 다단계 입력 제거</li>
-            <li><strong>음성 우선</strong>: 키보드 입력 대신 말 한마디로 장부 기록. 60대 사용자의 디지털 장벽 최소화</li>
-            <li><strong>비용 최적화</strong>: 하루 10~20회 호출 → GPT-5 mini로 월 API 비용 $1 미만</li>
-            <li><strong>오프라인 대응</strong>: TTS 폴백(speechSynthesis), 로컬 캐시 우선 → 인터넷 불안정 시에도 기본 기능 유지</li>
-          </ul>
-        </div>
-      </div>
-      <div class="project-tags">
-        <span class="project-tag">FastAPI</span><span class="project-tag">GPT-5 mini</span><span class="project-tag">Function Calling</span><span class="project-tag">Vanilla JS</span><span class="project-tag">Chart.js</span><span class="project-tag">Capacitor</span><span class="project-tag">Web Speech API</span><span class="project-tag">Pillow</span><span class="project-tag">SQLite</span><span class="project-tag">EC2</span><span class="project-tag">nginx</span>
-      </div>
-    </div>
-
-    <!-- Project 05: BTC System Trading -->
-    <div class="project-section reveal">
-      <div class="project-header">
-        <span class="project-num">05</span>
-        <h3>BTC System Trading Ecosystem</h3>
-        <span class="project-period">2023 ~ Present (3yr+)</span>
-      </div>
-      <p class="project-subtitle">선물봇·현물봇·시그널봇 6종·백테스팅 엔진·파라미터 최적화를 하나의 인프라로 통합한 암호화폐 시스템 트레이딩 생태계. 명세서 기반 설계, 상태머신 아키텍처, DCA 전략의 구조적 안정성을 77개월 실증 데이터로 검증하여 SCIE 논문으로 발전.</p>
-      <div class="metric-row">
-        <div class="metric-pill"><span class="val">5+</span><span class="lbl">Trading Bots</span></div>
-        <div class="metric-pill"><span class="val">6</span><span class="lbl">Signal Bots</span></div>
-        <div class="metric-pill"><span class="val">77mo</span><span class="lbl">Empirical Data</span></div>
-        <div class="metric-pill"><span class="val">24/7</span><span class="lbl">EC2 Operation</span></div>
-      </div>
-      <div class="arch-box">
-<pre>┌─ Futures Bot (v2.6) ──────────────────┐
-│  main.py (Scheduler)                   │
-│  ├── TradingBot (Mixin Pattern)        │
-│  │   Core + Entry + Exit + Monitor     │
-│  ├── signals/ (CCXT) → indicators      │
-│  ├── trading/ (python-binance)         │
-│  └── StateManager: NO_POS ↔ ENTERING  │
-│       ↔ HAS_POS ↔ USER_MANAGED        │
-├─ Signal Bots (x6) ────────────────────┤
-│  8 TF × 3 modes (aggressive/stable/   │
-│  divergence) + Telegram subscriber mgmt│
-├─ Backtesting Engine ──────────────────┤
-│  Grid Search + Walk-Forward + Monte    │
-│  Carlo │ shift(1) bias prevention      │
-├─ Academic Paper ──────────────────────┤
-│  77mo empirical │ SCIE/SSCI journal    │
-└────────────────────────────────────────┘</pre>
-      </div>
-      <div class="project-grid-3">
-        <div class="info-box">
-          <h4>Dual API 아키텍처</h4>
-          <p>CCXT(표준화 조회) + python-binance(선물 특화 실행) 이원화. "조회는 표준화, 실행은 특화" 원칙. 거래소 변경 시 CCXT만 교체.</p>
-        </div>
-        <div class="info-box">
-          <h4>4-상태 머신</h4>
-          <p>NO_POSITION → ENTERING → HAS_POSITION → USER_MANAGED. "거래소가 진실" 원칙 — 내부 상태 불일치 시 거래소 기준 자동 보정. 17가지 엣지케이스 명세서로 정의.</p>
-        </div>
-        <div class="info-box">
-          <h4>학술 검증</h4>
-          <p>77개월(5개 시장 레짐) 실증으로 규칙 기반 DCA의 구조적 안정성 증명. "시그널이 틀려도 시스템이 무너지지 않는" 실패 흡수 구조를 학술적으로 검증.</p>
-        </div>
-      </div>
-      <div class="project-grid-2" style="margin-top:1.5rem">
-        <div class="info-box">
-          <h4>핵심 구현</h4>
-          <ul>
-            <li><strong>명세서 기반 설계</strong>: 7개 명세서(전략/진입/청산/개입/에러/알림/아키텍처)와 코드의 1:1 대응. 17가지 사용자 개입 시나리오(수동 TP/SL, 부분 체결, 강제 청산 등) 전체 명세화</li>
-            <li><strong>"거래소가 진실" 원칙</strong>: 내부 상태와 거래소 불일치 시 거래소 기준으로 자동 보정. StateManager가 JSON으로 영속화하여 봇 재시작 시에도 상태 유지</li>
-            <li><strong>시그널봇 895줄 통합 엔진</strong>: BB·RSI·StochRSI·CCI·VRSI 7개 지표 × 8 타임프��임 × 3모드. shift(1) 일관 적용으로 look-ahead bias 완전 방지</li>
-            <li><strong>다이버전스 자동 탐지</strong>: RSI/거래량 다이버전스를 lookback + skip_recent 파라미터로 자동 감지. 3중 중복 방지(캔들 시간 + 쿨다운 + 포지션 ID)</li>
-            <li><strong>백테스트 Look-ahead 방지</strong>: 모든 지표에 shift(1), 진입은 bar open 기준. 환상적 백테스트 성과를 구조적으로 차단</li>
-          </ul>
-        </div>
-        <div class="info-box">
-          <h4>기술적 도전과 해결</h4>
-          <div class="challenge-item">
-            <h5>상태 동기화 문제</h5>
-            <p>봇이 주문을 넣었으나 거래소에서 부분 체결 → 내부 상태와 실제 포지션 불일치. → "거래소가 진실" 원칙 확립. 2초 주기 모니터링으로 불일치 감지 → 자동 보정</p>
-          </div>
-          <div class="challenge-item">
-            <h5>캔들 마감 지연</h5>
-            <p>바이낸스 캔들 마감 직후 OHLCV 데이터가 수 초간 미반영 → 시그널 오발생. → 캔들 마감 후 8초 + 랜덤 지터 대기 후 데이터 조회로 안정화</p>
-          </div>
-          <div class="challenge-item">
-            <h5>SimulatedClient E2E 테스트</h5>
-            <p>실제 거래소 API 없이 전체 플로우 검증 필요. → SimulatedClient가 거래소 응답을 시뮬레이션하여 진입→포지션→청산→알림 전 과정 E2E 테스트. mock 누락 리스크 제거</p>
-          </div>
-          <div class="challenge-item">
-            <h5>DCA 구조적 안정성 증명</h5>
-            <p>기존 연구는 ML 예측 정확도에 편중, 실전 배포 시 과적합·레짐 변화에 취약. → "시그널이 틀려도 무너지지 않는" 실패 흡수 구조를 77개월 5개 시장 레짐으로 실증. 정반대 접근으로 학술 차별화</p>
-          </div>
-        </div>
-      </div>
-      <div class="project-tags">
-        <span class="project-tag">Python</span><span class="project-tag">ccxt</span><span class="project-tag">python-binance</span><span class="project-tag">pandas</span><span class="project-tag">numpy</span><span class="project-tag">Telegram</span><span class="project-tag">Discord</span><span class="project-tag">Monte Carlo</span><span class="project-tag">Walk-Forward</span><span class="project-tag">Grid Search</span><span class="project-tag">EC2</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- Side Projects -->
-<section id="side-projects">
-  <div class="container">
-    <div class="section-header reveal">
-      <h2>Side <span class="grad">Projects</span></h2>
-      <p>데이터 수집·분석·NLP 등 다양한 도메인 경험</p>
-      <div class="divider"></div>
-    </div>
-    <div class="side-grid">
-      <div class="side-card reveal">
-        <h3><i class="fas fa-music" style="color:var(--accent1);margin-right:.5rem"></i>fromis_9 팬덤 텍스트 마이닝</h3>
-        <p class="side-desc">YouTube 댓글 55,000건 + DC인사이드 830건 수집. 한국어 형태소 분석, LDA 토픽 모델링, 감성 분석, 동시출현 네트워크 분석</p>
-        <div class="project-tags"><span class="project-tag">KoNLPy</span><span class="project-tag">LDA</span><span class="project-tag">NetworkX</span><span class="project-tag">Selenium</span></div>
-        <div class="side-meta">2024 · 개인 프로젝트</div>
-      </div>
-      <div class="side-card reveal">
-        <h3><i class="fas fa-compact-disc" style="color:var(--accent2);margin-right:.5rem"></i>MOSS — K-Pop 초동 데이터 파이프라인</h3>
-        <p class="side-desc">K-Pop 아이돌 초동 판매량 비정형 텍스트 2,789건을 정규표현식 4패턴으로 파싱, 정형 CSV 변환. 외부 의존성 제로</p>
-        <div class="project-tags"><span class="project-tag">Python</span><span class="project-tag">regex</span><span class="project-tag">csv</span></div>
-        <div class="side-meta">2025.03 · 개인 프로젝트</div>
-      </div>
-      <div class="side-card reveal">
-        <h3><i class="fab fa-youtube" style="color:#ff0000;margin-right:.5rem"></i>YouTube Comment Crawler</h3>
-        <p class="side-desc">YouTube 영상 댓글 전량 수집 + 다국어 자동 번역 파이프라인. Google Translate API 연동, 구조화 데이터셋 출력</p>
-        <div class="project-tags"><span class="project-tag">YouTube API</span><span class="project-tag">googletrans</span><span class="project-tag">pandas</span></div>
-        <div class="side-meta">2024.07 · 개인 프로젝트</div>
-      </div>
-      <div class="side-card reveal">
-        <h3><i class="fas fa-mobile-alt" style="color:var(--accent3);margin-right:.5rem"></i>증권사 MTS 앱 리뷰 토픽 모델링</h3>
-        <p class="side-desc">국내 7개 증권사 모바일 앱 리뷰 크롤링, 한국어 NLP 전처리 및 LDA 토픽 모델링으로 사용자 불만·요구사항 도출</p>
-        <div class="project-tags"><span class="project-tag">LDA</span><span class="project-tag">KoNLPy</span><span class="project-tag">Selenium</span><span class="project-tag">pyLDAvis</span></div>
-        <div class="side-meta">2023~2024 · 팀 프로젝트</div>
-      </div>
-      <div class="side-card reveal">
-        <h3><i class="fas fa-star" style="color:#f59e0b;margin-right:.5rem"></i>Scikit-Surprise 추천 시스템 학습</h3>
-        <p class="side-desc">추천 시스템 오픈소스 라이브러리 포크. SVD, KNN, NMF 등 알고리즘 학습 및 실험 환경 구축</p>
-        <div class="project-tags"><span class="project-tag">Surprise</span><span class="project-tag">SVD</span><span class="project-tag">Collaborative Filtering</span></div>
-        <div class="side-meta">2024 · 학습 프로젝트</div>
-      </div>
+<!-- ===== CONTACT ===== -->
+<section class="slide contact-slide">
+  <div class="slide-frame">
+    <div class="contact-inner">
+      <h2>Say Hello</h2>
+      <ul class="contact-list">
+        <li><span>Email</span> <a href="mailto:rlgnsday@naver.com">rlgnsday@naver.com</a></li>
+        <li><span>Phone</span> <a href="tel:+821068512612">010-6851-2612</a></li>
+        <li><span>GitHub</span> <a href="https://github.com/CuteRyan" target="_blank" rel="noopener noreferrer">github.com/CuteRyan</a></li>
+      </ul>
     </div>
   </div>
 </section>
 
-<!-- Timeline -->
-<section id="timeline">
-  <div class="container">
-    <div class="section-header reveal">
-      <h2>Education & <span class="grad">Career</span></h2>
-      <div class="divider"></div>
-    </div>
-    <div class="timeline reveal" style="max-width:600px;margin:0 auto">
-      <div class="timeline-item">
-        <div class="timeline-year">2024.03 &ndash; Present</div>
-        <h3>경희대학교 석��(수료) 빅��이터응용학과</h3>
-        <p>LLM 기반 선거 시뮬레이션 연구 (DSR 방법론)</p>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-year" style="color:var(--accent2)">2024.07 &ndash; 2024.12</div>
-        <h3>퍼블릭AI | IT 컨설팅</h3>
-        <p>AI ���스템 컨설팅</p>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-year" style="color:var(--accent3)">2023 &ndash; Present</div>
-        <h3>BTC System Trading</h3>
-        <p>암호화폐 시스템 트레이딩 생태계 독자 개발·운영 (3년+)</p>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-year" style="color:#22c55e">2016 &ndash; 2021</div>
-        <h3>중앙대학교 | 언론정보학과</h3>
-        <p>GPA 4.26 / 4.5 | 커뮤니케이션: 언론홍보, 기업홍��, 신문기자, 브랜드기획</p>
-      </div>
-    </div>
-  </div>
-</section>
+</div><!-- /deck -->
 
-<!-- Contact -->
-<section id="contact" style="background:var(--bg2)">
-  <div class="container">
-    <div class="section-header reveal">
-      <h2>Get in <span class="grad">Touch</span></h2>
-      <p>프로젝트 협업 및 문의</p>
-      <div class="divider"></div>
-    </div>
-    <div class="contact-grid reveal">
-      <div class="contact-card">
-        <i class="fas fa-envelope"></i>
-        <div class="info">
-          <div class="label">Email</div>
-          <div class="value">rlgnsday@naver.com</div>
-        </div>
-      </div>
-      <div class="contact-card">
-        <i class="fab fa-github"></i>
-        <div class="info">
-          <div class="label">GitHub</div>
-          <div class="value">github.com/CuteRyan</div>
-        </div>
-      </div>
-    </div>
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <button id="btn-prev">&larr; Prev</button>
+    <span class="chip" id="nav-chip">1 / 1</span>
+    <button id="btn-next">Next &rarr;</button>
+    <span class="hint">arrow keys / swipe</span>
   </div>
-</section>
-
-<footer>
-  <p>&copy; 2026 류기훈 (Ryu Gihun). AI Agent Builder & System Architect.</p>
-</footer>
+</div>
 
 <script>
-// Scroll reveal
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+(function(){
+  var slides=Array.from(document.querySelectorAll('.slide'));
+  var prevBtn=document.getElementById('btn-prev');
+  var nextBtn=document.getElementById('btn-next');
+  var chip=document.getElementById('nav-chip');
+  var total=slides.length;
+  var cur=0;
 
-// Nav hide on scroll
-let lastY = 0;
-window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  document.querySelector('nav').style.transform = y > lastY && y > 100 ? 'translateY(-100%)' : 'translateY(0)';
-  lastY = y;
-});
+  function go(idx,hash){
+    cur=Math.max(0,Math.min(total-1,idx));
+    for(var i=0;i<total;i++){slides[i].classList.toggle('active',i===cur)}
+    chip.textContent=(cur+1)+' / '+total;
+    if(hash!==false){history.replaceState(null,'','#'+(cur+1))}
+  }
 
-// Close mobile menu on link click
-document.querySelectorAll('.links a').forEach(a => {
-  a.addEventListener('click', () => document.querySelector('.links').classList.remove('open'));
-});
+  function fromHash(){
+    var n=parseInt(location.hash.replace('#',''),10);
+    if(n>=1&&n<=total) cur=n-1;
+  }
+
+  prevBtn.addEventListener('click',function(){go(cur-1)});
+  nextBtn.addEventListener('click',function(){go(cur+1)});
+  window.addEventListener('hashchange',function(){fromHash();go(cur,false)});
+
+  document.addEventListener('keydown',function(e){
+    switch(e.key){
+      case 'ArrowRight':case 'PageDown':case ' ':e.preventDefault();go(cur+1);break;
+      case 'ArrowLeft':case 'PageUp':e.preventDefault();go(cur-1);break;
+      case 'Home':e.preventDefault();go(0);break;
+      case 'End':e.preventDefault();go(total-1);break;
+    }
+  });
+
+  var touchX=0;
+  document.addEventListener('touchstart',function(e){touchX=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-touchX;
+    if(Math.abs(dx)>50){go(cur+(dx<0?1:-1))}
+  });
+
+  fromHash();go(cur,false);
+})();
 </script>
 </body>
 </html>
